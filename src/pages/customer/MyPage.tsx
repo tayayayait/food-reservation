@@ -1,148 +1,138 @@
-import { MobileLayout } from '@/components/layout/MobileLayout';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { User, LogOut, Store, Shield, Heart, Bell, ChevronRight, Settings } from 'lucide-react';
-
-interface MenuItemProps {
-  icon: React.ReactNode;
-  label: string;
-  description?: string;
-  onClick: () => void;
-}
-
-function MenuItem({ icon, label, description, onClick }: MenuItemProps) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-4 p-4 bg-card rounded-xl shadow-xs border border-neutral-200 hover:shadow-sm transition-shadow text-left"
-    >
-      <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0">
-        {icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-body-lg text-foreground font-medium">{label}</p>
-        {description && <p className="text-body-sm text-muted-foreground">{description}</p>}
-      </div>
-      <ChevronRight className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-    </button>
-  );
-}
+import { useAuth } from '@/hooks/useAuth';
+import { User, LogOut, Heart, Bell, ChevronRight, Settings, Star, Shield, Store } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function MyPage() {
   const { user, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  if (!user) {
+    return (
+        <div className="relative mx-auto min-h-screen max-w-[430px] bg-[#F7FAFC] flex flex-col items-center justify-center p-6 text-center shadow-2xl overflow-x-hidden font-sans">
+             <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+                <User className="size-10 text-slate-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">로그인이 필요해요</h2>
+            <p className="text-slate-500 mb-8">주문 내역과 혜택을 확인하려면 로그인해주세요</p>
+            <Button onClick={() => navigate('/auth')} className="w-full h-12 rounded-xl text-lg font-bold bg-[#FF5C00] hover:bg-[#FF5C00]/90">
+                로그인 / 회원가입
+            </Button>
+        </div>
+    );
+  }
+
   return (
-    <MobileLayout title="마이페이지">
-      {!user ? (
-        <div className="text-center py-20">
-          <p className="text-[48px] mb-4">👤</p>
-          <p className="text-heading-md text-muted-foreground mb-2">로그인이 필요합니다</p>
-          <p className="text-body-md text-neutral-500 mb-6">로그인하고 더 많은 기능을 이용해보세요</p>
-          <Button className="rounded-xl h-11 px-8" onClick={() => navigate('/auth')}>
-            로그인 / 회원가입
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Profile Card */}
-          <div className="bg-card rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center">
-                <User className="w-8 h-8 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-heading-md text-foreground">{user.email?.split('@')[0]}</h3>
-                <p className="text-body-sm text-muted-foreground text-ellipsis-1">{user.email}</p>
-              </div>
+    <div className="relative mx-auto min-h-screen max-w-[430px] bg-[#F7FAFC] shadow-2xl overflow-x-hidden font-sans text-slate-900">
+      
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/80 px-6 py-4 backdrop-blur-md">
+        <h1 className="text-xl font-bold text-[#1A202C]">마이페이지</h1>
+      </header>
+
+      <div className="px-4 mt-6 space-y-6">
+        
+        {/* Profile Card */}
+        <section className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center relative overflow-hidden">
+            <div className="w-24 h-24 bg-slate-100 rounded-full mx-auto flex items-center justify-center mb-4 border-4 border-white shadow-sm ring-1 ring-slate-100">
+                <User className="size-12 text-slate-400" />
             </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            <button
-              onClick={() => navigate('/orders')}
-              className="bg-card rounded-xl p-4 shadow-xs border border-neutral-200 text-center hover:shadow-sm transition-shadow"
-            >
-              <p className="text-heading-md text-primary mb-1">📋</p>
-              <p className="text-body-sm text-muted-foreground">주문내역</p>
+            <h2 className="text-xl font-bold text-slate-900">{user.email?.split('@')[0]}</h2>
+            <p className="text-sm text-slate-400 mt-1">{user.email}</p>
+            <button className="text-xs font-bold text-[#FF5C00] mt-3 border border-[#FF5C00]/30 rounded-full px-3 py-1">
+                프로필 편집
             </button>
-            <button
-              className="bg-card rounded-xl p-4 shadow-xs border border-neutral-200 text-center hover:shadow-sm transition-shadow"
-            >
-              <p className="text-heading-md text-primary mb-1">❤️</p>
-              <p className="text-body-sm text-muted-foreground">즐겨찾기</p>
-            </button>
-            <button
-              className="bg-card rounded-xl p-4 shadow-xs border border-neutral-200 text-center hover:shadow-sm transition-shadow"
-            >
-              <p className="text-heading-md text-primary mb-1">⭐</p>
-              <p className="text-body-sm text-muted-foreground">리뷰</p>
-            </button>
-          </div>
-
-          {/* Menu Items */}
-          <div className="space-y-2">
-            <h3 className="text-heading-sm text-foreground px-1 mb-2">설정</h3>
-
-            <MenuItem
-              icon={<Bell className="w-5 h-5 text-primary" />}
-              label="알림 설정"
-              description="주문 상태 알림을 관리하세요"
-              onClick={() => {}}
-            />
-
-            <MenuItem
-              icon={<Heart className="w-5 h-5 text-primary" />}
-              label="즐겨찾기 매장"
-              description="자주 가는 매장을 확인하세요"
-              onClick={() => {}}
-            />
-
-            <MenuItem
-              icon={<Settings className="w-5 h-5 text-primary" />}
-              label="프로필 편집"
-              description="이름, 전화번호 등을 수정하세요"
-              onClick={() => {}}
-            />
-          </div>
-
-          {/* Role switching */}
-          {(hasRole('owner') || hasRole('admin')) && (
-            <div className="space-y-2">
-              <h3 className="text-heading-sm text-foreground px-1 mb-2">관리</h3>
-
-              {hasRole('owner') && (
-                <MenuItem
-                  icon={<Store className="w-5 h-5 text-primary" />}
-                  label="사장님 모드"
-                  description="매장을 관리하세요"
-                  onClick={() => navigate('/owner')}
-                />
-              )}
-
-              {hasRole('admin') && (
-                <MenuItem
-                  icon={<Shield className="w-5 h-5 text-primary" />}
-                  label="관리자 모드"
-                  description="전체 서비스를 관리하세요"
-                  onClick={() => navigate('/admin')}
-                />
-              )}
+            
+            {/* Stats Row */}
+            <div className="flex items-center justify-center gap-8 mt-6 pt-6 border-t border-slate-50">
+                <div className="text-center">
+                    <p className="text-lg font-bold text-slate-900">0</p>
+                    <p className="text-xs text-slate-400 font-medium">주문</p>
+                </div>
+                <div className="w-px h-8 bg-slate-100"></div>
+                <div className="text-center">
+                    <p className="text-lg font-bold text-slate-900">0</p>
+                    <p className="text-xs text-slate-400 font-medium">리뷰</p>
+                </div>
+                <div className="w-px h-8 bg-slate-100"></div>
+                <div className="text-center">
+                    <p className="text-lg font-bold text-slate-900">0 P</p>
+                    <p className="text-xs text-slate-400 font-medium">포인트</p>
+                </div>
             </div>
-          )}
+        </section>
 
-          {/* Logout */}
-          <Button
-            variant="outline-neutral"
-            className="w-full h-11 rounded-xl"
-            onClick={signOut}
-          >
-            <LogOut className="w-4 h-4 mr-2" /> 로그아웃
-          </Button>
-        </div>
-      )}
-    </MobileLayout>
+        {/* Menu List */}
+        <section className="space-y-3">
+             <h3 className="text-sm font-bold text-slate-500 px-2">설정</h3>
+             
+             <button className="w-full flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-[0.99] transition-transform">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-pink-50 text-pink-500 rounded-lg">
+                        <Heart className="size-5" />
+                    </div>
+                    <span className="font-bold text-slate-700">즐겨찾기</span>
+                </div>
+                <ChevronRight className="size-5 text-slate-300" />
+             </button>
+
+             <button className="w-full flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-[0.99] transition-transform">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-yellow-50 text-yellow-500 rounded-lg">
+                        <Star className="size-5" />
+                    </div>
+                    <span className="font-bold text-slate-700">나의 리뷰</span>
+                </div>
+                <ChevronRight className="size-5 text-slate-300" />
+             </button>
+
+             <button className="w-full flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm active:scale-[0.99] transition-transform">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-50 text-blue-500 rounded-lg">
+                        <Bell className="size-5" />
+                    </div>
+                    <span className="font-bold text-slate-700">알림 설정</span>
+                </div>
+                <ChevronRight className="size-5 text-slate-300" />
+             </button>
+        </section>
+
+        {/* Admin/Owner Sections */}
+        {(hasRole('owner') || hasRole('admin')) && (
+            <section className="space-y-3">
+                <h3 className="text-sm font-bold text-slate-500 px-2">관리자</h3>
+                {hasRole('owner') && (
+                     <button onClick={() => navigate('/owner')} className="w-full flex items-center justify-between p-4 bg-slate-800 rounded-2xl shadow-sm text-white active:scale-[0.99] transition-transform">
+                        <div className="flex items-center gap-3">
+                            <Store className="size-5" />
+                            <span className="font-bold">사장님 모드</span>
+                        </div>
+                        <ChevronRight className="size-5 text-slate-400" />
+                    </button>
+                )}
+                 {hasRole('admin') && (
+                     <button onClick={() => navigate('/admin')} className="w-full flex items-center justify-between p-4 bg-slate-900 rounded-2xl shadow-sm text-white active:scale-[0.99] transition-transform">
+                        <div className="flex items-center gap-3">
+                            <Shield className="size-5" />
+                            <span className="font-bold">관리자 모드</span>
+                        </div>
+                        <ChevronRight className="size-5 text-slate-400" />
+                    </button>
+                )}
+            </section>
+        )}
+
+        <button onClick={handleLogout} className="w-full py-4 text-center text-red-500 font-bold text-sm hover:underline">
+            로그아웃
+        </button>
+
+      </div>
+    </div>
   );
 }

@@ -79,7 +79,7 @@ export default function CustomerHome() {
   });
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-[430px] bg-[#F7FAFC] pb-24 shadow-2xl overflow-x-hidden font-sans text-slate-900">
+    <div className="relative mx-auto min-h-screen max-w-[430px] bg-[#F7FAFC] shadow-2xl overflow-x-hidden font-sans text-slate-900">
       
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center justify-between bg-white/80 px-4 py-4 backdrop-blur-md">
@@ -94,8 +94,8 @@ export default function CustomerHome() {
       {/* Search Hero */}
       <section className="bg-white px-4 pb-8 pt-4 rounded-b-3xl shadow-sm">
         <h2 className="mb-6 text-3xl font-extrabold leading-tight tracking-tight text-slate-900">
-          Don't wait,<br/>
-          <span className="text-[#FF5C00]">just pick up!</span>
+          기다리지 말고,<br/>
+          <span className="text-[#FF5C00]">바로 픽업하세요!</span>
         </h2>
         <div className="relative group">
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -113,7 +113,7 @@ export default function CustomerHome() {
       {/* Categories */}
       <section className="mt-6">
         <div className="flex items-center justify-between px-4 mb-4">
-          <h3 className="text-lg font-bold">Categories</h3>
+          <h3 className="text-lg font-bold">카테고리</h3>
         </div>
         <div className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
           {CATEGORIES.map((cat) => (
@@ -143,7 +143,7 @@ export default function CustomerHome() {
 
       {/* Shop List */}
       <section className="mt-4 px-4 space-y-4">
-        <h3 className="text-lg font-bold mb-4">Recommended for You</h3>
+        <h3 className="text-lg font-bold mb-4">추천 매장</h3>
         
         {loading ? (
           // Skeletons
@@ -175,11 +175,11 @@ export default function CustomerHome() {
                 )}
                 {shop.is_open ? (
                   <div className="absolute left-1 top-1 rounded-md bg-green-500 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase shadow-sm">
-                    Open
+                    영업중
                   </div>
                 ) : (
                   <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center backdrop-blur-[1px]">
-                    <span className="text-white font-bold text-xs bg-slate-900/80 px-2 py-1 rounded">Closed</span>
+                    <span className="text-white font-bold text-xs bg-slate-900/80 px-2 py-1 rounded">영업종료</span>
                   </div>
                 )}
               </div>
@@ -199,7 +199,7 @@ export default function CustomerHome() {
                   </div>
                   <div className="flex items-center gap-1 rounded bg-[#FF5C00]/10 px-1.5 py-0.5">
                     <Timer className="size-3.5 text-[#FF5C00]" />
-                    <span className="text-[10px] font-bold text-[#FF5C00]">{shop.avg_prep_time || 15} min wait</span>
+                    <span className="text-[10px] font-bold text-[#FF5C00]">{shop.avg_prep_time || 15}분 대기</span>
                   </div>
                   <span className="text-xs font-medium text-slate-400">500m</span>
                 </div>
@@ -209,27 +209,7 @@ export default function CustomerHome() {
         )}
       </section>
 
-      {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 border-t border-slate-100 bg-white/95 px-6 pb-6 pt-3 backdrop-blur-lg z-50">
-        <div className="flex justify-between items-center">
-          <button onClick={() => navigate('/')} className="flex flex-col items-center gap-1 text-[#FF5C00]">
-            <Home className="size-6 fill-current" />
-            <span className="text-[10px] font-bold">Home</span>
-          </button>
-          <button onClick={() => navigate('/search')} className="flex flex-col items-center gap-1 text-slate-400 hover:text-[#FF5C00] transition-colors">
-            <Search className="size-6" />
-            <span className="text-[10px] font-bold">Search</span>
-          </button>
-          <button onClick={() => navigate('/orders')} className="flex flex-col items-center gap-1 text-slate-400 hover:text-[#FF5C00] transition-colors">
-            <Receipt className="size-6" />
-            <span className="text-[10px] font-bold">Orders</span>
-          </button>
-          <button onClick={() => navigate('/mypage')} className="flex flex-col items-center gap-1 text-slate-400 hover:text-[#FF5C00] transition-colors">
-            <User className="size-6" />
-            <span className="text-[10px] font-bold">My Page</span>
-          </button>
-        </div>
-      </nav>
+
     </div>
   );
 }

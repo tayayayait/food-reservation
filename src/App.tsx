@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import CustomerLayout from "@/components/layout/CustomerLayout";
 
 // Customer pages
 import CustomerHome from "./pages/customer/Home";
@@ -45,15 +46,17 @@ const App = () => (
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             {/* Customer */}
-            <Route path="/" element={<CustomerHome />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/shop/:id" element={<ShopDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/payment/success" element={<PaymentSuccess />} />
-            <Route path="/payment/fail" element={<PaymentFail />} />
-            <Route path="/orders" element={<CustomerOrders />} />
-            <Route path="/orders/:id" element={<OrderDetail />} />
-            <Route path="/mypage" element={<MyPage />} />
+            <Route element={<CustomerLayout />}>
+              <Route path="/" element={<CustomerHome />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/shop/:id" element={<ShopDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/payment/success" element={<PaymentSuccess />} />
+              <Route path="/payment/fail" element={<PaymentFail />} />
+              <Route path="/orders" element={<CustomerOrders />} />
+              <Route path="/orders/:id" element={<OrderDetail />} />
+              <Route path="/mypage" element={<MyPage />} />
+            </Route>
 
             {/* Owner */}
             <Route path="/owner" element={<OwnerDashboard />} />
