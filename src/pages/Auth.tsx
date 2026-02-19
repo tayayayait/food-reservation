@@ -163,6 +163,42 @@ export default function Auth() {
           </button>
         </div>
 
+        {/* Demo Mode Section */}
+        <div className="pt-6 border-t border-slate-100">
+          <p className="text-center text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">
+            Guest / Demo Access
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('admin@demo.com');
+                setPassword('123123');
+                setIsLogin(true);
+                // Optionally auto-submit: 
+                // setTimeout(() => document.querySelector('form')?.requestSubmit(), 100);
+              }}
+              className="flex items-center justify-center h-10 rounded-lg bg-slate-800 text-white text-sm font-bold shadow-md hover:bg-slate-700 transition"
+            >
+              관리자 체험
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('owner@demo.com');
+                setPassword('123123');
+                setIsLogin(true);
+              }}
+              className="flex items-center justify-center h-10 rounded-lg bg-slate-600 text-white text-sm font-bold shadow-md hover:bg-slate-500 transition"
+            >
+              점주 체험
+            </button>
+          </div>
+          <p className="text-center text-[10px] text-slate-400 mt-2">
+            * 비밀번호는 123123 입니다. 계정이 없다면 회원가입 해주세요.
+          </p>
+        </div>
+
         {/* Footer Toggle */}
         <div className="text-center pt-4">
           <p className="text-slate-500 text-sm">

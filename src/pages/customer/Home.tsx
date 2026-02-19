@@ -1,11 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MobileLayout } from '@/components/layout/MobileLayout';
 import { supabase } from '@/integrations/supabase/client';
-import { MapPin, Clock, Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { 
+  MapPin, 
+  Search, 
+  Utensils, 
+  Soup, 
+  Fish, 
+  Pizza, 
+  Coffee, 
+  Drumstick,
+  Star,
+  Timer,
+  Home,
+  Receipt,
+  User,
+  ChevronDown
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
+// Interfaces
 interface Shop {
   id: string;
   name: string;
@@ -16,130 +32,204 @@ interface Shop {
   avg_prep_time: number;
 }
 
-const categories = ['전체', '한식', '중식', '일식', '양식', '카페', '분식', '치킨', '피자'];
+// Category Configuration
+const CATEGORIES = [
+  { id: '전체', label: '전체', icon: Utensils },
+  { id: '한식', label: '한식', icon: Soup },
+  { id: '중식', label: '중식', icon: Utensils },
+  { id: '일식', label: '일식', icon: Fish },
+  { id: '양식', label: '양식', icon: Pizza },
+  { id: '카페', label: '카페', icon: Coffee },
+  { id: '치킨', label: '치킨', icon: Drumstick },
+];
 
 export default function CustomerHome() {
+  const navigate = useNavigate();
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchShops();
   }, []);
 
   const fetchShops = async () => {
-    const { data } = await supabase
-      .from('shops')
-      .select('id, name, category, address, image_url, is_open, avg_prep_time')
-      .order('created_at', { ascending: false });
-    setShops(data || []);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('shops')
+        .select('id, name, category, address, image_url, is_open, avg_prep_time')
+        .order('is_open', { ascending: false }) // Open shops first
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setShops(data || []);
+    } catch (error) {
+      console.error('Error fetching shops:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filtered = shops.filter(s => {
-    const matchSearch = s.name.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = selectedCategory === '전체' || s.category === selectedCategory;
+  const filteredShops = shops.filter(shop => {
+    const matchSearch = shop.name.toLowerCase().includes(search.toLowerCase()) || 
+                       shop.category.includes(search);
+    const matchCategory = selectedCategory === '전체' || shop.category === selectedCategory;
     return matchSearch && matchCategory;
   });
 
   return (
-    <MobileLayout showCart>
-      {/* Hero */}
-      <div className="bg-primary rounded-2xl p-5 mb-6 -mx-0">
-        <h2 className="text-heading-lg text-primary-foreground mb-1">미리 주문하고</h2>
-        <p className="text-body-lg text-primary-foreground/80 mb-4">기다림 없이 픽업하세요! 🍊</p>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" aria-hidden="true" />
+    <div className="relative mx-auto min-h-screen max-w-[430px] bg-[#F7FAFC] pb-24 shadow-2xl overflow-x-hidden font-sans text-slate-900">
+      
+      {/* Header */}
+      <header className="sticky top-0 z-50 flex items-center justify-between bg-white/80 px-4 py-4 backdrop-blur-md">
+        <h1 className="text-2xl font-black tracking-tighter text-[#FF5C00]">Mirijumun</h1>
+        <button className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 transition-colors hover:bg-slate-200">
+          <MapPin className="size-4 text-[#FF5C00]" />
+          <span className="text-sm font-bold text-slate-700">역삼동</span>
+          <ChevronDown className="size-4 text-slate-400" />
+        </button>
+      </header>
+
+      {/* Search Hero */}
+      <section className="bg-white px-4 pb-8 pt-4 rounded-b-3xl shadow-sm">
+        <h2 className="mb-6 text-3xl font-extrabold leading-tight tracking-tight text-slate-900">
+          Don't wait,<br/>
+          <span className="text-[#FF5C00]">just pick up!</span>
+        </h2>
+        <div className="relative group">
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+            <Search className="size-5 text-slate-400 group-focus-within:text-[#FF5C00] transition-colors" />
+          </div>
           <Input
-            placeholder="매장 검색..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
-            className="pl-10 h-11 bg-card border-0 rounded-xl"
-            aria-label="매장 검색"
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full h-14 rounded-2xl border-none bg-slate-50 py-4 pl-12 pr-4 text-base font-medium shadow-lg shadow-slate-200/50 focus:ring-2 focus:ring-[#FF5C00]/20 placeholder:text-slate-400"
+            placeholder="매장이나 메뉴를 검색하세요"
           />
         </div>
-      </div>
+      </section>
 
       {/* Categories */}
-      <div className="flex gap-2 overflow-x-auto pb-3 mb-4 -mx-4 px-4 scrollbar-hide" role="tablist" aria-label="카테고리 필터">
-        {categories.map(cat => (
-          <button
-            key={cat}
-            role="tab"
-            aria-selected={selectedCategory === cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-full text-btn-sm whitespace-nowrap transition-colors ${
-              selectedCategory === cat
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-card text-muted-foreground border border-border'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+      <section className="mt-6">
+        <div className="flex items-center justify-between px-4 mb-4">
+          <h3 className="text-lg font-bold">Categories</h3>
+        </div>
+        <div className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className="flex flex-col items-center gap-2 shrink-0 group"
+            >
+              <div className={cn(
+                "flex h-16 w-16 items-center justify-center rounded-2xl shadow-sm transition-all active:scale-95 border",
+                selectedCategory === cat.id 
+                  ? "bg-[#FF5C00] border-[#FF5C00] text-white shadow-[#FF5C00]/30" 
+                  : "bg-white border-slate-100 text-[#FF5C00] group-hover:border-[#FF5C00]/50"
+              )}>
+                <cat.icon className="size-8 stroke-[1.5]" />
+              </div>
+              <span className={cn(
+                "text-xs font-semibold transition-colors",
+                selectedCategory === cat.id ? "text-[#FF5C00]" : "text-slate-600"
+              )}>
+                {cat.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* Shop List */}
-      <section>
-        <h3 className="text-heading-sm text-foreground mb-3">주변 매장</h3>
+      <section className="mt-4 px-4 space-y-4">
+        <h3 className="text-lg font-bold mb-4">Recommended for You</h3>
+        
         {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="flex gap-4 p-4 bg-card rounded-xl">
-                <Skeleton className="w-[100px] h-[100px] rounded-lg flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-4 w-2/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-heading-md text-neutral-400 mb-2">🏪</p>
-            <p className="text-body-lg text-muted-foreground">매장이 없습니다</p>
+          // Skeletons
+          [1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-4 p-3 bg-white rounded-2xl border border-slate-100">
+               <Skeleton className="size-24 rounded-xl" />
+               <div className="flex-1 space-y-2">
+                 <Skeleton className="h-5 w-3/4" />
+                 <Skeleton className="h-4 w-1/2" />
+               </div>
+            </div>
+          ))
+        ) : filteredShops.length === 0 ? (
+          <div className="text-center py-12 text-slate-400">
+            <p className="text-lg">검색 결과가 없습니다 😢</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filtered.map(shop => (
-              <button
-                key={shop.id}
-                onClick={() => navigate(`/shop/${shop.id}`)}
-                className="w-full flex gap-4 p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow text-left"
-              >
-                <div className="w-[100px] h-[100px] rounded-lg bg-neutral-200 overflow-hidden flex-shrink-0">
-                  {shop.image_url ? (
-                    <img src={shop.image_url} alt={shop.name} className="w-full h-full object-cover" loading="lazy" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-heading-lg">🍽️</div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="text-heading-sm text-foreground text-ellipsis-1">{shop.name}</h4>
-                    <span className={`text-body-xs px-2 py-0.5 rounded-full ${shop.is_open ? 'bg-success-light text-success-dark' : 'bg-neutral-200 text-neutral-500'}`}>
-                      {shop.is_open ? '영업중' : '준비중'}
-                    </span>
+          filteredShops.map((shop) => (
+            <button
+              key={shop.id}
+              onClick={() => navigate(`/shop/${shop.id}`)}
+              className="w-full flex gap-4 overflow-hidden rounded-2xl bg-white p-3 shadow-sm border border-slate-100 transition-all hover:shadow-md hover:border-[#FF5C00]/30 text-left group"
+            >
+              <div className="relative size-24 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                {shop.image_url ? (
+                  <img className="h-full w-full object-cover transition-transform group-hover:scale-105" src={shop.image_url} alt={shop.name} />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-3xl">🍽️</div>
+                )}
+                {shop.is_open ? (
+                  <div className="absolute left-1 top-1 rounded-md bg-green-500 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase shadow-sm">
+                    Open
                   </div>
-                  <p className="text-body-sm text-muted-foreground mb-1">{shop.category}</p>
-                  <div className="flex items-center gap-3 text-body-sm">
-                    <span className="flex items-center gap-1 text-primary">
-                      <MapPin className="w-3.5 h-3.5" /> 500m
-                    </span>
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <Clock className="w-3.5 h-3.5" /> {shop.avg_prep_time}분
-                    </span>
+                ) : (
+                  <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center backdrop-blur-[1px]">
+                    <span className="text-white font-bold text-xs bg-slate-900/80 px-2 py-1 rounded">Closed</span>
                   </div>
+                )}
+              </div>
+              
+              <div className="flex flex-1 flex-col justify-between py-0.5">
+                <div>
+                  <div className="flex items-start justify-between">
+                    <h4 className="text-base font-bold text-slate-900 leading-tight line-clamp-1">{shop.name}</h4>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">{shop.category} • {shop.address.split(' ')[0]}</p>
                 </div>
-              </button>
-            ))}
-          </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-0.5">
+                    <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
+                    <span className="text-xs font-bold text-slate-700">4.8</span>
+                  </div>
+                  <div className="flex items-center gap-1 rounded bg-[#FF5C00]/10 px-1.5 py-0.5">
+                    <Timer className="size-3.5 text-[#FF5C00]" />
+                    <span className="text-[10px] font-bold text-[#FF5C00]">{shop.avg_prep_time || 15} min wait</span>
+                  </div>
+                  <span className="text-xs font-medium text-slate-400">500m</span>
+                </div>
+              </div>
+            </button>
+          ))
         )}
       </section>
-    </MobileLayout>
+
+      {/* Bottom Nav */}
+      <nav className="fixed bottom-0 left-1/2 w-full max-w-[430px] -translate-x-1/2 border-t border-slate-100 bg-white/95 px-6 pb-6 pt-3 backdrop-blur-lg z-50">
+        <div className="flex justify-between items-center">
+          <button onClick={() => navigate('/')} className="flex flex-col items-center gap-1 text-[#FF5C00]">
+            <Home className="size-6 fill-current" />
+            <span className="text-[10px] font-bold">Home</span>
+          </button>
+          <button onClick={() => navigate('/search')} className="flex flex-col items-center gap-1 text-slate-400 hover:text-[#FF5C00] transition-colors">
+            <Search className="size-6" />
+            <span className="text-[10px] font-bold">Search</span>
+          </button>
+          <button onClick={() => navigate('/orders')} className="flex flex-col items-center gap-1 text-slate-400 hover:text-[#FF5C00] transition-colors">
+            <Receipt className="size-6" />
+            <span className="text-[10px] font-bold">Orders</span>
+          </button>
+          <button onClick={() => navigate('/mypage')} className="flex flex-col items-center gap-1 text-slate-400 hover:text-[#FF5C00] transition-colors">
+            <User className="size-6" />
+            <span className="text-[10px] font-bold">My Page</span>
+          </button>
+        </div>
+      </nav>
+    </div>
   );
 }
