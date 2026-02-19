@@ -61,12 +61,22 @@ export const useCartStore = create<CartState>()(
             : state.items.map(i => i.itemId === itemId ? { ...i, quantity } : i),
         })),
       clearCart: () => set({ shopId: null, shopName: null, items: [] }),
-      totalPrice: () => get().items.reduce((sum, i) => {
-        const optionsPrice = i.options.reduce((s, o) => s + o.priceModifier, 0);
-        return sum + (i.price + optionsPrice) * i.quantity;
-      }, 0),
+      totalPrice: () => {
+        const items = get().items;
+        return items.reduce((sum, i) => {
+          const optionsPrice = i.options.reduce((s, o) => s + o.priceModifier, 0);
+          return sum + (i.price + optionsPrice) * i.quantity;
+        }, 0);
+      },
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
     }),
-    { name: 'cart-storage' }
+    { 
+      name: 'cart-storage-v2',
+      partialize: (state) => ({ 
+        shopId: state.shopId, 
+        shopName: state.shopName, 
+        items: state.items 
+      }),
+    }
   )
 );
